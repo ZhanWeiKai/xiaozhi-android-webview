@@ -19,7 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String URL = "http://100.69.157.38:8100";
+    private static final String URL = "https://xiaozhi.jamesweb.org";
 
     private WebView webView;
     private ProgressBar progressBar;
