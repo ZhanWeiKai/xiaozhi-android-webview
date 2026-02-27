@@ -1,0 +1,21 @@
+# Build
+/build/
+/app/build/
+
+# Gradle
+.gradle/
+
+# IDE
+.idea/
+*.iml
+.local/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude temp files
+tmpclaude-*
+
+# Local config (contains SDK paths)
+local.properties
