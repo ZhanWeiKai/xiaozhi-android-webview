@@ -1,4 +1,4 @@
-package com.xiaozhi.webview;
+package com.xiaozhi.me;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -28,7 +28,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "XiaozhiWebView";
-    private static final String URL = "https://xiaozhi.jamesweb.org";
+    private static final String URL = "https://xiaozhi-me.jamesweb.org/";
 
     // Permission request codes
     private static final int PERMISSION_REQUEST_CODE = 1001;
