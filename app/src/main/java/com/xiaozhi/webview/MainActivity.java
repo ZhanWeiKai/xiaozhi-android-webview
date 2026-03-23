@@ -28,7 +28,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "XiaozhiWebView";
-    private static final String URL = "https://xiaozhi.jamesweb.org";
+    private static final String URL = "https://xiaozhi-webtest.jamesweb.org/test_page.html";
 
     // Permission request codes
     private static final int PERMISSION_REQUEST_CODE = 1001;
