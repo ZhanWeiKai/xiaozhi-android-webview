@@ -27,7 +27,7 @@ public class McpService extends Service {
     private static final int NOTIFICATION_ID = 1001;
 
     // 默认配置
-    private static final String DEFAULT_ENDPOINT = "ws://100.70.126.42:8004/mcp_endpoint/mcp/";
+    private static final String DEFAULT_ENDPOINT = "ws://100.69.157.38:8004/mcp_endpoint/mcp/";
     private static final String DEFAULT_TOKEN = "1qWkfjXARUCYLy0dlScvSf1756PTsRiK3Om23or3TAZ8OV8VODOYdkg3Ozig3F8p";
 
     private static final String PREFS_NAME = "mcp_config";

@@ -15,6 +15,7 @@ import com.xiaozhi.mcp.tools.ToolRegistry;
 import com.xiaozhi.mcp.tools.impl.DeviceInfoTool;
 import com.xiaozhi.mcp.tools.impl.EchoTool;
 import com.xiaozhi.mcp.tools.impl.PingTool;
+import com.xiaozhi.mcp.tools.impl.PlayVideoTool;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -334,6 +335,7 @@ public class McpConnection {
         toolRegistry.register(new PingTool());
         toolRegistry.register(new EchoTool());
         toolRegistry.register(new DeviceInfoTool());
+        toolRegistry.register(new PlayVideoTool(context));
 
         Log.i(TAG, "默认工具注册完成，共 " + toolRegistry.getToolCount() + " 个工具");
         broadcastLog("已注册 " + toolRegistry.getToolCount() + " 个工具");

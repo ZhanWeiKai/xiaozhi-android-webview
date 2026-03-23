@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- External storage for video files -->
+    <external-path name="external_files" path="." />
+
+    <!-- DCIM/Camera directory -->
+    <external-path name="dcim" path="DCIM" />
+
+    <!-- Movies directory -->
+    <external-path name="movies" path="Movies" />
+
+    <!-- Download directory -->
+    <external-path name="download" path="Download" />
+
+    <!-- Videos directory -->
+    <external-path name="videos" path="Videos" />
+</paths>

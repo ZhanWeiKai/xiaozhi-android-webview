@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     // Permission request codes
     private static final int PERMISSION_REQUEST_CODE = 1001;
     private static final int PERMISSION_REQUEST_AUDIO = 1002;
+    private static final int PERMISSION_REQUEST_STORAGE = 1003;
 
     private WebView webView;
     private ProgressBar progressBar;
@@ -317,6 +318,38 @@ public class MainActivity extends AppCompatActivity {
                         PERMISSION_REQUEST_CODE);
             }
         }
+
+        // Storage permission for video access
+        requestStoragePermission();
+    }
+
+    /**
+     * Request storage permission for video playback
+     */
+    private void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ uses READ_MEDIA_VIDEO
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Requesting READ_MEDIA_VIDEO permission");
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_MEDIA_VIDEO},
+                        PERMISSION_REQUEST_STORAGE);
+            } else {
+                Log.d(TAG, "READ_MEDIA_VIDEO permission already granted");
+            }
+        } else {
+            // Android 12 and below uses READ_EXTERNAL_STORAGE
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Requesting READ_EXTERNAL_STORAGE permission");
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_STORAGE);
+            } else {
+                Log.d(TAG, "READ_EXTERNAL_STORAGE permission already granted");
+            }
+        }
     }
 
     private void setupWebView() {
@@ -490,6 +523,14 @@ public class MainActivity extends AppCompatActivity {
                     pendingPermissionRequest.deny();
                     pendingPermissionRequest = null;
                 }
+            }
+        } else if (requestCode == PERMISSION_REQUEST_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Storage permission granted");
+                Toast.makeText(this, "存储权限已授权，视频播放功能可用", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.w(TAG, "Storage permission denied");
+                Toast.makeText(this, "存储权限被拒绝，视频播放功能无法使用", Toast.LENGTH_LONG).show();
             }
         }
     }
