@@ -1,7 +1,12 @@
 package com.xiaozhi.webview;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +20,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +30,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.xiaozhi.mcp.McpEvents;
+import com.xiaozhi.mcp.McpService;
+
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,8 +53,22 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private View errorView;
 
+    // MCP Status UI
+    private View mcpStatusIndicator;
+    private TextView mcpStatusText;
+    private TextView mcpToggleBtn;
+    private LinearLayout mcpDetailPanel;
+    private TextView mcpLastTool;
+    private TextView mcpLastResult;
+    private TextView mcpLog;
+    private boolean mcpDetailExpanded = false;
+    private StringBuilder mcpLogBuilder = new StringBuilder();
+
     // Store pending permission request from WebView
     private PermissionRequest pendingPermissionRequest;
+
+    // MCP 事件接收器
+    private BroadcastReceiver mcpEventReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +76,34 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
+        initMcpViews();
         checkAndRequestPermissions();
         setupWebView();
+
+        // 启动 MCP 服务
+        startMcpService();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // 注册 MCP 事件接收器
+        registerMcpEventReceiver();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // 注销 MCP 事件接收器
+        unregisterMcpEventReceiver();
+    }
+
+    /**
+     * 启动 MCP 服务
+     */
+    private void startMcpService() {
+        Log.i(TAG, "启动 MCP 服务");
+        McpService.start(this);
     }
 
     private void initViews() {
@@ -68,6 +122,174 @@ public class MainActivity extends AppCompatActivity {
             errorView.setVisibility(View.GONE);
             webView.reload();
         });
+    }
+
+    /**
+     * 初始化 MCP 状态 UI
+     */
+    private void initMcpViews() {
+        mcpStatusIndicator = findViewById(R.id.mcpStatusIndicator);
+        mcpStatusText = findViewById(R.id.mcpStatusText);
+        mcpToggleBtn = findViewById(R.id.mcpToggleBtn);
+        mcpDetailPanel = findViewById(R.id.mcpDetailPanel);
+        mcpLastTool = findViewById(R.id.mcpLastTool);
+        mcpLastResult = findViewById(R.id.mcpLastResult);
+        mcpLog = findViewById(R.id.mcpLog);
+
+        // 展开/收起详情面板
+        View toggleArea = findViewById(R.id.mcpStatusPanel);
+        toggleArea.setOnClickListener(v -> {
+            mcpDetailExpanded = !mcpDetailExpanded;
+            mcpDetailPanel.setVisibility(mcpDetailExpanded ? View.VISIBLE : View.GONE);
+            mcpToggleBtn.setText(mcpDetailExpanded ? "收起" : "展开");
+        });
+    }
+
+    /**
+     * 注册 MCP 事件接收器
+     */
+    private void registerMcpEventReceiver() {
+        if (mcpEventReceiver != null) return;
+
+        Log.d(TAG, "注册 MCP 事件接收器");
+        mcpEventReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                Log.d(TAG, "收到广播: action=" + action);
+                if (action == null) return;
+
+                switch (action) {
+                    case McpEvents.ACTION_MCP_STATUS:
+                        handleMcpStatus(intent);
+                        break;
+                    case McpEvents.ACTION_MCP_TOOL_CALL:
+                        handleMcpToolCall(intent);
+                        break;
+                    case McpEvents.ACTION_MCP_LOG:
+                        handleMcpLog(intent);
+                        break;
+                }
+            }
+        };
+
+        registerReceiver(mcpEventReceiver, McpEvents.createIntentFilter(), Context.RECEIVER_NOT_EXPORTED);
+        Log.d(TAG, "MCP 事件接收器已注册");
+    }
+
+    /**
+     * 注销 MCP 事件接收器
+     */
+    private void unregisterMcpEventReceiver() {
+        if (mcpEventReceiver != null) {
+            unregisterReceiver(mcpEventReceiver);
+            mcpEventReceiver = null;
+        }
+    }
+
+    /**
+     * 处理 MCP 状态更新
+     */
+    private void handleMcpStatus(Intent intent) {
+        int status = intent.getIntExtra(McpEvents.EXTRA_STATUS, McpEvents.STATUS_DISCONNECTED);
+        String message = intent.getStringExtra(McpEvents.EXTRA_LOG_MESSAGE);
+        Log.d(TAG, "处理 MCP 状态: status=" + status + ", message=" + message);
+
+        runOnUiThread(() -> {
+            Log.d(TAG, "更新 UI 状态: " + McpEvents.getStatusText(status));
+            String statusText = "MCP: " + McpEvents.getStatusText(status);
+            mcpStatusText.setText(statusText);
+
+            // 更新状态指示器颜色
+            int drawableRes;
+            switch (status) {
+                case McpEvents.STATUS_CONNECTED:
+                    drawableRes = R.drawable.status_indicator_connected;
+                    break;
+                case McpEvents.STATUS_CONNECTING:
+                    drawableRes = R.drawable.status_indicator_connecting;
+                    break;
+                default:
+                    drawableRes = R.drawable.status_indicator_disconnected;
+                    break;
+            }
+            mcpStatusIndicator.setBackgroundResource(drawableRes);
+
+            if (message != null) {
+                appendMcpLog("[状态] " + message);
+            }
+        });
+    }
+
+    /**
+     * 处理 MCP 工具调用
+     */
+    private void handleMcpToolCall(Intent intent) {
+        String toolName = intent.getStringExtra(McpEvents.EXTRA_TOOL_NAME);
+        String args = intent.getStringExtra(McpEvents.EXTRA_TOOL_ARGS);
+        String result = intent.getStringExtra(McpEvents.EXTRA_TOOL_RESULT);
+
+        runOnUiThread(() -> {
+            // 更新最后调用的工具
+            String toolDisplay = toolName;
+            if (args != null && !args.isEmpty()) {
+                toolDisplay += " (" + truncate(args, 30) + ")";
+            }
+            mcpLastTool.setText(toolDisplay);
+
+            // 更新结果
+            if (result != null) {
+                mcpLastResult.setText(truncate(result, 100));
+                mcpLastResult.setTextColor(
+                    toolName.equals("ERROR")
+                        ? 0xFFF44336  // 红色
+                        : 0xFF4CAF50   // 绿色
+                );
+            }
+
+            // 添加到日志
+            appendMcpLog("[工具] " + toolName + " → " + truncate(result, 50));
+        });
+    }
+
+    /**
+     * 处理 MCP 日志
+     */
+    private void handleMcpLog(Intent intent) {
+        String message = intent.getStringExtra(McpEvents.EXTRA_LOG_MESSAGE);
+        if (message != null) {
+            runOnUiThread(() -> appendMcpLog("[日志] " + message));
+        }
+    }
+
+    /**
+     * 添加 MCP 日志
+     */
+    private void appendMcpLog(String message) {
+        String timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+        String logLine = timestamp + " " + message + "\n";
+
+        mcpLogBuilder.insert(0, logLine);
+
+        // 限制日志行数
+        String logText = mcpLogBuilder.toString();
+        String[] lines = logText.split("\n");
+        if (lines.length > 50) {
+            mcpLogBuilder = new StringBuilder();
+            for (int i = 0; i < 50; i++) {
+                mcpLogBuilder.insert(0, lines[i] + "\n");
+            }
+        }
+
+        mcpLog.setText(mcpLogBuilder.toString());
+    }
+
+    /**
+     * 截断字符串
+     */
+    private String truncate(String str, int maxLength) {
+        if (str == null) return "";
+        return str.length() > maxLength ? str.substring(0, maxLength) + "..." : str;
     }
 
     /**
@@ -165,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPermissionRequest(PermissionRequest request) {
                 Log.d(TAG, "onPermissionRequest called");
-                Log.d(TAG, "Resources requested: " + java.util.Arrays.toString(request.getResources()));
+                Log.d(TAG, "Resources requested: " + Arrays.toString(request.getResources()));
 
                 // Check if RECORD_AUDIO permission is granted at app level
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO)
@@ -233,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!grantedResources.isEmpty()) {
             String[] grantedArray = grantedResources.toArray(new String[0]);
-            Log.d(TAG, "Granting permissions: " + java.util.Arrays.toString(grantedArray));
+            Log.d(TAG, "Granting permissions: " + Arrays.toString(grantedArray));
             request.grant(grantedArray);
         } else {
             Log.w(TAG, "No resources to grant, denying request");
@@ -309,6 +531,10 @@ public class MainActivity extends AppCompatActivity {
 
             webView.destroy();
         }
+
+        // 停止 MCP 服务
+        McpService.stop(this);
+
         super.onDestroy();
     }
 }

@@ -68,4 +68,122 @@
 
     </LinearLayout>
 
+    <!-- MCP Status Panel -->
+    <LinearLayout
+        android:id="@+id/mcpStatusPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:background="#E0000000"
+        android:padding="8dp"
+        android:alpha="0.9">
+
+        <!-- Header with status indicator -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <View
+                android:id="@+id/mcpStatusIndicator"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/status_indicator_disconnected" />
+
+            <TextView
+                android:id="@+id/mcpStatusText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="MCP: 未连接"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/mcpToggleBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="展开"
+                android:textColor="#4CAF50"
+                android:textSize="12sp"
+                android:padding="4dp" />
+
+        </LinearLayout>
+
+        <!-- Expandable content -->
+        <LinearLayout
+            android:id="@+id/mcpDetailPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="8dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最后调用:"
+                android:textColor="#888888"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/mcpLastTool"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="返回结果:"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/mcpLastResult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="#4CAF50"
+                android:textSize="11sp"
+                android:maxLines="3"
+                android:ellipsize="end" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="日志:"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/mcpLog"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="等待 MCP 连接..."
+                android:textColor="#AAAAAA"
+                android:textSize="10sp"
+                android:maxLines="4"
+                android:ellipsize="end"
+                android:scrollbars="vertical" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 </FrameLayout>
