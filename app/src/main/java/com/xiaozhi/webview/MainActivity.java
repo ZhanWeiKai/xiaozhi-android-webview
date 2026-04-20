@@ -42,7 +42,9 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "XiaozhiWebView";
-    private static final String URL = "https://xiaozhi-webtest.jamesweb.org/test_page.html";
+    private static final String URL_TEST = "https://xiaozhi-webtest.jamesweb.org/test_page.html";
+    private static final String URL_WEBUI = "https://xiaozhi.jamesweb.org/";
+    private static final String URL_DEFAULT = URL_TEST;
 
     // Permission request codes
     private static final int PERMISSION_REQUEST_CODE = 1001;
@@ -67,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Store pending permission request from WebView
     private PermissionRequest pendingPermissionRequest;
+
+    // URL switch buttons
+    private TextView btnTest;
+    private TextView btnWebui;
+    private String currentUrl;
 
     // MCP 事件接收器
     private BroadcastReceiver mcpEventReceiver;
@@ -121,8 +128,40 @@ public class MainActivity extends AppCompatActivity {
         // Setup error view retry button
         errorView.findViewById(R.id.retryButton).setOnClickListener(v -> {
             errorView.setVisibility(View.GONE);
-            webView.reload();
+            loadUrl(currentUrl);
         });
+
+        // Setup URL switch buttons
+        btnTest = findViewById(R.id.btnTest);
+        btnWebui = findViewById(R.id.btnWebui);
+        currentUrl = URL_DEFAULT;
+
+        btnTest.setOnClickListener(v -> {
+            currentUrl = URL_TEST;
+            updateSwitchButtons(true);
+            loadUrl(URL_TEST);
+        });
+
+        btnWebui.setOnClickListener(v -> {
+            currentUrl = URL_WEBUI;
+            updateSwitchButtons(false);
+            loadUrl(URL_WEBUI);
+        });
+
+        // Setup clear cache button
+        TextView btnClear = findViewById(R.id.btnClear);
+        btnClear.setOnClickListener(v -> {
+            webView.clearCache(true);
+            webView.clearHistory();
+            webView.clearFormData();
+            android.webkit.WebStorage.getInstance().deleteAllData();
+            android.webkit.CookieManager.getInstance().removeAllCookies(null);
+            Toast.makeText(this, "缓存已清除", Toast.LENGTH_SHORT).show();
+            loadUrl(currentUrl);
+        });
+
+        // Set initial active state
+        updateSwitchButtons(true);
     }
 
     /**
@@ -448,7 +487,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Load URL
-        loadUrl();
+        loadUrl(currentUrl);
     }
 
     /**
@@ -535,11 +574,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadUrl() {
+    private void loadUrl(String url) {
         errorView.setVisibility(View.GONE);
         webView.setVisibility(View.VISIBLE);
-        Log.d(TAG, "Loading URL: " + URL);
-        webView.loadUrl(URL);
+        Log.d(TAG, "Loading URL: " + url);
+        webView.loadUrl(url);
+    }
+
+    private void updateSwitchButtons(boolean testActive) {
+        btnTest.setTextColor(testActive ? 0xFFFFFFFF : 0xFF999999);
+        btnTest.setTextSize(13);
+        btnWebui.setTextColor(testActive ? 0xFF999999 : 0xFFFFFFFF);
+        btnWebui.setTextSize(13);
     }
 
     private void showError() {

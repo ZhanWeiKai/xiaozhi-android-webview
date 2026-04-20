@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(./gradlew.bat assembleDebug:*)",
+      "Bash(echo sdk.dir=C\\\\\\\\:\\\\\\\\Users\\\\\\\\weika\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Android\\\\\\\\Sdk:*)",
+      "Bash(scp:*)",
+      "Bash(ssh:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(adb connect:*)",
+      "Bash(adb -s 100.66.50.1:39495 install -r \"C:\\\\claude-project\\\\xiaozhi-webui\\\\XiaozhiApp\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\")"
+    ]
+  }
+}
