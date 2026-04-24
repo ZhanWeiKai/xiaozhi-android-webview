@@ -9,7 +9,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(adb connect:*)",
-      "Bash(adb -s 100.66.50.1:39495 install -r \"C:\\\\claude-project\\\\xiaozhi-webui\\\\XiaozhiApp\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\")"
+      "Bash(adb -s 100.66.50.1:39495 install -r \"C:\\\\claude-project\\\\xiaozhi-webui\\\\XiaozhiApp\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\")",
+      "Bash(adb -s 100.66.50.1:41711 logcat -d -t 100 2>&1 | grep -i -E \"mcp|McpConnection|McpWebSocket|McpService\")",
+      "Bash(adb -s 100.66.50.1:41711 logcat -d -t 200 2>&1 | tail -30)",
+      "Bash(adb -s 100.66.50.1:41711 shell \"ps -A | grep xiaozhi\")",
+      "Bash(adb -s 100.66.50.1:41711 install -r \"C:\\\\claude-project\\\\xiaozhi-webui\\\\XiaozhiApp\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\")"
     ]
   }
 }

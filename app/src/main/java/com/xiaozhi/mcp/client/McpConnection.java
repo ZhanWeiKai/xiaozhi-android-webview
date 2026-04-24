@@ -147,13 +147,6 @@ public class McpConnection {
                     handleToolsCall(id, root);
                     break;
 
-                case "notifications/initialized":
-                    // 服务器初始化完成通知，无需响应
-                    Log.i(TAG, "收到 initialized 通知");
-                    broadcastLog("MCP 初始化完成");
-                    McpEvents.broadcastStatus(context, McpEvents.STATUS_CONNECTED, "已连接");
-                    break;
-
                 default:
                     Log.w(TAG, "未知的方法: " + method);
                     if (id != null) {
@@ -194,26 +187,9 @@ public class McpConnection {
             // 更新状态为已连接
             McpEvents.broadcastStatus(context, McpEvents.STATUS_CONNECTED, "已连接");
 
-            // 发送 initialized 通知
-            sendInitializedNotification();
-
         } catch (Exception e) {
             Log.e(TAG, "处理 initialize 失败", e);
             sendError(requestId, JsonRpcError.INTERNAL_ERROR, e.getMessage());
-        }
-    }
-
-    /**
-     * 发送初始化通知（MCP 协议要求）
-     */
-    private void sendInitializedNotification() {
-        try {
-            String message = "{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}";
-            wsClient.send(message);
-            Log.i(TAG, "initialized 通知已发送");
-            broadcastLog("initialized 通知已发送");
-        } catch (Exception e) {
-            Log.e(TAG, "发送 initialized 通知失败", e);
         }
     }
 

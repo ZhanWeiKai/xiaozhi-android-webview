@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.xiaozhi.mcp.McpEvents;
 import com.xiaozhi.mcp.McpService;
@@ -53,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
     private ProgressBar progressBar;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private View errorView;
 
     // MCP Status UI
@@ -117,13 +115,7 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         webView = findViewById(R.id.webView);
         progressBar = findViewById(R.id.progressBar);
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         errorView = findViewById(R.id.errorView);
-
-        // Setup SwipeRefreshLayout
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            webView.reload();
-        });
 
         // Setup error view retry button
         errorView.findViewById(R.id.retryButton).setOnClickListener(v -> {
@@ -159,6 +151,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "缓存已清除", Toast.LENGTH_SHORT).show();
             loadUrl(currentUrl);
         });
+
+        // Setup refresh button
+        TextView btnRefresh = findViewById(R.id.btnRefresh);
+        btnRefresh.setOnClickListener(v -> webView.reload());
 
         // Set initial active state
         updateSwitchButtons(true);
@@ -428,7 +424,6 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
-                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -592,7 +587,6 @@ public class MainActivity extends AppCompatActivity {
         webView.setVisibility(View.GONE);
         errorView.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
